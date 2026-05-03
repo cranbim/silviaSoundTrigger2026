@@ -1,9 +1,14 @@
+
 let triggerSourceMacs=["1FA4","2EA8","BBA8","1EE8","1138","AAAA","BBBB"]
 let soundPlayers=[]
 let soundFileNames=["s00.wav","s01.wav","s02.wav","s03.wav","s04.wav","s05.wav","s06.wav",]
 let currentSound=0;
 let numSounds=0
 var connection = new WebSocket('ws://127.0.0.1:8011/', ['arduino']);
+let triggerLockoutTime=5000
+let triggerIsLocked=false;
+let triggerTimeout;
+let soundEnabled=false;
 
 function preload(){
   soundFileNames.forEach((sf,i)=>{
@@ -18,12 +23,26 @@ function setup() {
 }
 
 function draw() {
-  background(220);
+  if(!soundEnabled){
+    background(200,100,100)
+    textAlign(CENTER, CENTER)
+    textSize(width*0.1)
+    text("click to enable sound",width/2, height/2)
+  } else {
+    background(100,200,100);
+  }
+  if(triggerIsLocked){
+    background(230,180,100)
+  }
 }
 
 function mousePressed(){
-  soundPlayers[currentSound].triggerSound()
-  currentSound=(currentSound+1)%numSounds
+  if(!soundEnabled){
+    soundEnabled=true
+  } else {
+    soundPlayers[currentSound].triggerSound()
+    currentSound=(currentSound+1)%numSounds
+  }
 }
 
 connection.onopen = function () {
@@ -47,8 +66,10 @@ function processMessage(message){
   if(instr=="TRIG"){
     let ind=triggerSourceMacs.findIndex(mac=>mac==mac4)
     console.log(mac4,ind)
-    if(ind>-1){
+    if(ind>-1 && !triggerIsLocked){
       soundPlayers[ind].triggerSound()
+      triggerIsLocked=true
+      triggerTimeout=setTimeout(function(){triggerIsLocked=false},triggerLockoutTime)
     }
   }
 }

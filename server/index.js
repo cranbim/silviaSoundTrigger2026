@@ -6,6 +6,7 @@ var connections = [];
 var arduinos = [];
 var browsers = [];
 var currentBrowser=null;
+const accSensitivity="2.00";
 
 var server = http.createServer(function(request, response) {
     console.log((new Date()) + ' Received request for ' + request.url);
@@ -86,7 +87,7 @@ wsServer.on('request', function(request) {
     console.log("connection id: "+ids);
     connection.sendUTF("Hello Client!"+"WID");
     connection.sendUTF("WID"+ids);
-    connection.sendUTF("ATH"+"2.00");//acc threshold
+    connection.sendUTF("ATH"+accSensitivity);//acc threshold
 });
 
 function decode_utf8( s )
