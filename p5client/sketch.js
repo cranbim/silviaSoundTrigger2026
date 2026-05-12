@@ -1,7 +1,7 @@
 
-let triggerSourceMacs=["1FA4","2EA8","BBA8","1EE8","1138","AAAA","BBBB"]
+let triggerSourceMacs=["1FA4","2EA8","BBA8","1EE8"]//,"1138","AAAA","BBBB"
 let soundPlayers=[]
-let soundFileNames=["s00.wav","s01.wav","s02.wav","s03.wav","s04.wav","s05.wav","s06.wav",]
+let soundFileNames=["s00.wav","s01.wav","s02.wav","s03.wav"]//,"s04.wav","s05.wav","s06.wav",
 let currentSound=0;
 let numSounds=0
 var connection = new WebSocket('ws://127.0.0.1:8011/', ['arduino']);
