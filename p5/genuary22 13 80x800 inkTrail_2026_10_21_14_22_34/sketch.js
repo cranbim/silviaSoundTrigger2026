@@ -4,18 +4,20 @@ let controlX=0;
 let controlY=0;
 let relXY=0.5;
 let controlCalib=10;
+let motionTrails=[]
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   colorMode(HSB);
-  splotTrails.push(new SplotTrail(splotTrails.length));
-  mover=new Mover(width/2, height/2);
+  // splotTrails.push(new SplotTrail(splotTrails.length));
+  // mover=new Mover(width/2, height/2);
+  motionTrails.push(new MotionTrail(0,width/2, height/2))
 }
 
 function draw() {
   background(0,0,80,0.1);
-  splotTrails[0].add(mover.pos.x, mover.pos.y,relXY);
-  splotTrails[0].run();
+  // splotTrails[0].add(mover.pos.x, mover.pos.y,relXY);
+  // splotTrails[0].run();
   // mover.show();
   controlX=constrain(map(mouseX,0,width,-1,1),-1,1)
   controlY=constrain(map(mouseY,0,height,-1,1),-1,1)
@@ -25,7 +27,22 @@ function draw() {
   // text(nf(controlX,1,2),20,20)
   // text(nf(controlY,1,2),20,40)
   // text(nf(relXY,1,2),20,60)
-  mover.run(controlX*controlCalib,controlY*controlCalib);
+  // mover.run(controlX*controlCalib,controlY*controlCalib);
+  motionTrails[0].run(controlX, controlY, relXY)
+}
+
+class MotionTrail{
+  constructor(index,x,y){
+    this.mover=new Mover(x,y);
+    this.splotTrail=new SplotTrail(index);
+    this.controlCalib=10;
+  }
+
+  run(controlX, controlY,relXY){
+    this.splotTrail.add(this.mover.pos.x, this.mover.pos.y,relXY);
+    this.splotTrail.run();
+    this.mover.run(controlX*this.controlCalib,controlY*this.controlCalib);
+  }
 }
 
 function Mover(x,y){

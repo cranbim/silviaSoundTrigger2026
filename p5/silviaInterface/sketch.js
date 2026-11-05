@@ -3,7 +3,8 @@
 let triggerSourceMacs=["A744","E7F8","2EA8","BBA8"]//,"1138","AAAA","BBBB"
 let soundPlayers=[]
 // let soundFileNames=["s00.wav","s01.wav","s02.wav","s03.wav"]//,"s04.wav","s05.wav","s06.wav",
-let soundFileNames=["s00.mp3","s01.mp3","s02.mp3","s03.mp3"]//,"s04.wav","s05.wav","s06.wav",
+// let soundFileNames=["s00.mp3","s01.mp3","s02.mp3","s03.mp3"]//,"s04.wav","s05.wav","s06.wav",
+let soundFileNames=["hum00.mp3","hum01.mp3","hum00.mp3","hum01.mp3"]//,"s04.wav","s05.wav","s06.wav",
 let currentSound=0;
 let numSounds=0
 var connection = new WebSocket('ws://127.0.0.1:8011/', ['arduino']);
@@ -16,10 +17,11 @@ let stopButton
 let modeRunner
 
 function preload(){
-  // soundFileNames.forEach((sf,i)=>{
-  //   soundPlayers[i]=new SoundPlayer(i,"sounds/s"+nf(i,2,0)+".mp3")
-  //   soundPlayers[i].loadSoundFile()
-  // })
+  soundFileNames.forEach((sf,i)=>{
+    // soundPlayers[i]=new SoundPlayer(i,"sounds/s"+nf(i,2,0)+".mp3")
+    soundPlayers[i]=new SoundPlayer(i,"assets/"+sf)
+    soundPlayers[i].loadSoundFile()
+  })
 }
 
 function setup() {
@@ -35,41 +37,55 @@ function setup() {
 }
 
 function draw() {
-  // if(!soundEnabled){
-  //   background(0,70,100)
-  //   textAlign(CENTER, CENTER)
-  //   textSize(width*0.06)
-  //   text("click to enable sound",width/2, height/2)
-  // } else {
-  //   background(230,80,80);
-  // }
-  // if(triggerIsLocked){
-  //   background(340,80,80)
-  // }
-  // soundPlayers.forEach(sp=>{
-  //   sp.showButton()
-  //   sp.showTracker()
-  //   sp.update()
-  // })
-  // stopButton.showButton()
-  // stopButton.update()
+  if(!soundEnabled){
+    background(0,70,100)
+    textAlign(CENTER, CENTER)
+    textSize(width*0.06)
+    text("click to enable sound",width/2, height/2)
+  } else {
+    background(230,80,80);
+  }
+  if(triggerIsLocked){
+    background(340,80,80)
+  }
   modeRunner.run()
   modeRunner.show(showStandard,100,100,width-200,height-150)
+  soundPlayers.forEach(sp=>{
+    sp.showButton()
+    sp.showTracker()
+    sp.update()
+  })
+
+  stopButton.showButton()
+  stopButton.update()
 }
 
 function mousePressed(){
-  modeRunner.nextMode()
   enableSound()
+  if(stopButton.click()){
+    console.log("stop all")
+    soundPlayers.forEach(sp=>{
+      sp.stop()
+    })
+  } else {
+    modeRunner.nextMode()
+  }
 }
 
 function showStandard(x,y,w,h){
   push()
   translate(x,y)
+  translate(w/2,h/2)
+  rotate(-frameCount/30)
   fill(0,100,100)
   noStroke()
   rectMode(CENTER)
-  rect(w/2,h/2,w/2,h/8)
+  rect(0,0,w/2,h/8)
   pop()
+}
+
+function mousePressedStandard(){
+
 }
 
 function enableSound(){
@@ -194,142 +210,3 @@ class Button{
   
 }
 
-const modes=[
-  {
-    modeName:'base',
-    initFunc: ()=>{
-      console.log('initialising base mode')
-    },
-    stopFunc: ()=>{
-      console.log('stopping base mode')
-    },
-    runFunc: (frame)=>{
-      console.log(frame)
-    },
-    backFunc: (x,y,w,h)=>{
-      noStroke()
-      fill(80)
-      push()
-      translate(x,y)
-      rectMode(CORNER)
-      rect(0,0,w,h)
-      pop()
-    },
-    frontFunc: (x,y,w,h)=>{
-      noStroke()
-      fill(80,200,30)
-      push()
-      translate(x,y)
-      circle(w/2,h/2,w*0.2)
-      pop()
-    },
-  },{
-    modeName:'visual',
-    initFunc: ()=>{
-      console.log('initialising visual mode')
-    },
-    stopFunc: ()=>{
-      console.log('stopping base visual')
-    },
-    runFunc: (frame)=>{
-      console.log(frame)
-    },
-    backFunc: (x,y,w,h)=>{
-      noStroke()
-      fill(200,80,80)
-      push()
-      translate(x,y)
-      rectMode(CORNER)
-      rect(0,0,w,h)
-      pop()
-    },
-    frontFunc: (x,y,w,h)=>{
-      noStroke()
-      fill(60,80,80)
-      push()
-      translate(x,y)
-      circle(w/2,h/2,w*0.2)
-      pop()
-    },
-  }
-]//initFunc, runFunc, backFunc, frontFunc, stopFunc
-
-class ModeRunner{
-  constructor(modes){
-    this.modes=[]
-    modes.forEach(mode=>{
-      this.modes.push(new Mode(mode))
-    })
-    this.currentMode=0
-    // this.addMode(initialMode)
-  }
-
-  // addMode(mode){
-  //   this.modes.push(mode)
-  // }
-
-  switchMode(modeID){
-    console.log(modeID)
-    if(modeID<this.modes.length && this.modes[modeID]){
-      this.modes[this.currentMode].stop()
-      this.currentMode=modeID
-      this.modes[this.currentMode].init()
-    }
-  }
-
-  nextMode(){
-    this.currentMode=(this.currentMode+1)%this.modes.length
-    console.log(this.currentMode)
-    this.switchMode(this.currentMode)
-  }
-
-  run(){
-    if(!this.modes[this.currentMode].isRunning){
-      this.modes[this.currentMode].init()
-    }
-    this.modes[this.currentMode].run()
-  }
-
-  show(showStandard,x,y,w,h){
-    this.modes[this.currentMode].showBack(x,y,w,h)
-    showStandard(x,y,w,h)
-    this.modes[this.currentMode].showFront(x,y,w,h)
-  }
-
-}
-
-class Mode{
-  constructor(modeDef){
-    this.initFunc=modeDef.initFunc
-    this.runFunc=modeDef.runFunc
-    this.backFunc=modeDef.backFunc
-    this.frontFunc=modeDef.frontFunc
-    this.stopFunc=modeDef.stopFunc
-    this.isRunning=false
-    this.modeFrameCount=0
-  }
-
-  init(){
-    this.initFunc()
-    this.isRunning=true
-    this.modeFrameCount=0
-  }
-
-  run(){
-    this.runFunc(this.modeFrameCount)
-    this.modeFrameCount++
-  }
-
-  showBack(x,y,w,h){
-    this.backFunc(x,y,w,h)
-  }
-
-  showFront(x,y,w,h){
-    this.frontFunc(x,y,w,h)
-  }
-
-  stop(){
-    this.stopFunc()
-    this.isRunning=false
-  }
-}
