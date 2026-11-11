@@ -44,7 +44,7 @@ function setup() {
   soundButton=new Button(step,height-step,step*0.8,step*0.5,'enable')
   stopButton=new Button(step*2,height-step,step*0.8,step*0.5,'stop all')
   for(let i=0; i<numDevices; i++){
-    motionTrails.push(new MotionTrail(i,width/2, height/2,(200+i*40)%360,width/2, height/2, i*TWO_PI/4,height*0.6))
+    motionTrails.push(new MotionTrail(i,width/2, height/2,(200+i*60)%360,width/2, height/2, i*TWO_PI/4,height*0.6))
   }
   // motionTrails.push(new MotionTrail(0,width/2, height/2,220))
   // motionTrails.push(new MotionTrail(1,width/2, height/2,260))
@@ -52,7 +52,7 @@ function setup() {
 }
 
 function draw() {
-  
+  blendMode(BLEND)
   if(millis()-lastUIMouse<inactiveUIinterval){
     fadeUI+=(1-fadeUI)/20
     cursor()
@@ -71,7 +71,7 @@ function draw() {
     // background(230,80,80);
     // background(230,10,80);
   }
-  background(0,0,40);
+  background(0,0,80);
   // fill(0)
   // noStroke()
   // textSize(20)
@@ -102,6 +102,7 @@ function draw() {
   // controlY=constrain(map(soundPlayers[0].yPosEff,0,1,-1,1),-1,1)
   // relXY=sqrt((controlX*controlX)+(controlY*controlY))
   // motionTrails[0].run(controlX, controlY, relXY,soundPlayers[0].alive)
+  blendMode(MULTIPLY)
   motionTrails.forEach((mt,i)=>{
     controlX=constrain(map(soundPlayers[i].xPosEff,0,1,-1.2,1.2),-1,1)
     controlY=constrain(map(soundPlayers[i].yPosEff,0,1,-1.2,1.2),-1,1)
@@ -524,7 +525,7 @@ function SplotTrail(id,hueOffset){
 
   this.add=function(x,y,relSize,active){
     if(splots.length<maxSplots){
-      splots.push(new Splot(x,y,5+(1-relSize)*width*0.04*active,hueOffset));
+      splots.push(new Splot(x,y,5+(1-relSize)*width*0.04*active,hueOffset,relSize));
     }
   };
 
@@ -542,7 +543,7 @@ function SplotTrail(id,hueOffset){
   };
 }
 
-function Splot(x,y,ir,hueOffset){
+function Splot(x,y,ir,hueOffset,rel){
   var ttlMax=120;
   var ttl=ttlMax;
   var verts=[];
@@ -575,7 +576,7 @@ function Splot(x,y,ir,hueOffset){
     push();
     translate(x,y);
     // fill(hueOffset+cHue,sat*ttl/ttlMax, bri*ttl/ttlMax,ttl/ttlMax);
-    fill(hueOffset+cHue,40+0.6*sat*(ttl/ttlMax), bri*(1),ttl/ttlMax);
+    fill(hueOffset+cHue,70+0.3*sat*(ttl/ttlMax), bri*(1),(0.1+rel*0.8)*0.7*ttl/ttlMax);
     noStroke();
     beginShape();
     verts.forEach(function(v){
