@@ -24,6 +24,9 @@ let controlX=0;
 let controlY=0;
 let relXY=0.5;
 let motionTrails=[]
+let step
+
+let visEnabled=true
 
 function preload(){
   soundFileNames.forEach((sf,i)=>{
@@ -36,7 +39,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   colorMode(HSB)
   numSounds=soundPlayers.length
-  let step=constrain(width/numSounds,10,width/10)
+  step=constrain(width/numSounds,10,width/10)
   for(let i=0; i<soundPlayers.length; i++){
     soundPlayers[i].createButton((i+1.5)*step,0.5*step,0.8*step,0.5*step)
   } 
@@ -71,7 +74,11 @@ function draw() {
     // background(230,80,80);
     // background(230,10,80);
   }
-  background(0,0,80);
+  if(visEnabled){
+    background(0,0,50);
+  } else {
+    background(0,0,20);
+  }
   // fill(0)
   // noStroke()
   // textSize(20)
@@ -102,13 +109,22 @@ function draw() {
   // controlY=constrain(map(soundPlayers[0].yPosEff,0,1,-1,1),-1,1)
   // relXY=sqrt((controlX*controlX)+(controlY*controlY))
   // motionTrails[0].run(controlX, controlY, relXY,soundPlayers[0].alive)
-  blendMode(MULTIPLY)
-  motionTrails.forEach((mt,i)=>{
-    controlX=constrain(map(soundPlayers[i].xPosEff,0,1,-1.2,1.2),-1,1)
-    controlY=constrain(map(soundPlayers[i].yPosEff,0,1,-1.2,1.2),-1,1)
-    relXY=sqrt((controlX*controlX)+(controlY*controlY))
-    mt.run(controlX, controlY, relXY,soundPlayers[i].alive)
-  })
+  if(visEnabled){
+    blendMode(MULTIPLY)
+    motionTrails.forEach((mt,i)=>{
+      controlX=constrain(map(soundPlayers[i].xPosEff,0,1,-1.2,1.2),-1,1)
+      controlY=constrain(map(soundPlayers[i].yPosEff,0,1,-1.2,1.2),-1,1)
+      relXY=sqrt((controlX*controlX)+(controlY*controlY))
+      mt.run(controlX, controlY, relXY,soundPlayers[i].alive)
+    })
+    if(soundTriggersEnabled){
+      fill(120,60,100)
+    } else {
+      fill(0,60,100)
+    }
+    noStroke()
+    circle(width-step*0.25,step*0.25,step*0.2)
+    }
 }
 
 function mouseMoved(){
@@ -137,7 +153,24 @@ function mousePressed(){
     }
   }
   if(revealButton.click()){
+    visEnabled=true
     activeUI=!activeUI
+  }
+}
+
+function keyPressed(){
+  if (key === ' ') {
+    visEnabled=!visEnabled
+    // soundTriggersEnabled=true
+    noCursor()
+  }
+  if (key === 's') {
+    soundTriggersEnabled=!soundTriggersEnabled
+  }
+  if (key === 'q') {
+    soundPlayers.forEach(sp=>{
+      sp.stop()
+    })
   }
 }
 
@@ -587,3 +620,16 @@ function Splot(x,y,ir,hueOffset,rel){
   };
 
 }
+
+
+/*
+Sound credits
+Waves Crashing on shore. by Tom_Kaszuba -- https://freesound.org/s/659001/ -- License: Creative Commons 0
+wave sand beach 061.wav by klankbeeld -- https://freesound.org/s/628028/ -- License: Attribution 4.0
+Sea - Ocean - Beach - Close - MP3 by nebulousflynn -- https://freesound.org/s/220531/ -- License: Attribution 4.0
+Waves crashing on stone jetty.CINEMATIC..wav by juskiddink -- https://freesound.org/s/84715/ -- License: Attribution 4.0
+
+
+
+
+*/
